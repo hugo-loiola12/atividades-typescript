@@ -1,16 +1,29 @@
-import { Produto } from "../entities/Produto";
+import { Produto, ProdutoInput } from "../entities/Produto";
 import { CategoriaRepository } from "./CategoriaRepository";
 
 export class ProdutoRepository {
   private produtos: Produto[] = [];
-  private categoriaRepo = new CategoriaRepository();
+  private static ultimoId: number = 0; // Contador estático
 
-  criar(produto: Produto): void {
-    // Valida se a categoria existe
-    const categoria = this.categoriaRepo.buscarPorId(produto.categoriaId);
-    if (!categoria) throw new Error("Categoria não encontrada!");
+  constructor(private categoriaRepo: CategoriaRepository) {}
 
-    this.produtos.push(produto);
+  criar(dados: ProdutoInput): Produto {
+    const novoId = ++ProdutoRepository.ultimoId;
+    const dataAtual = new Date();
+
+    const novoProduto = new Produto(
+      novoId.toString(),
+      dados.nome,
+      dados.descricao,
+      dados.preco,
+      dados.quantidade,
+      dados.categoriaId,
+      dataAtual, // dataCriacao
+      dataAtual, // dataAtualizacao
+    );
+
+    this.produtos.push(novoProduto);
+    return novoProduto;
   }
 
   listar(): Produto[] {

@@ -1,5 +1,6 @@
 import prompt from "prompt-sync";
-import { Categoria } from "../entities/Categoria";
+import { Categoria, CategoriaInput } from "../entities/Categoria";
+import { ProdutoInput } from "../entities/Produto";
 import { CategoriaRepository } from "../repositories/CategoriaRepository";
 import { ProdutoRepository } from "../repositories/ProdutoRepository";
 
@@ -78,17 +79,18 @@ export class MainMenu {
 
   private criarCategoria(): void {
     console.log("\n=== NOVA CATEGORIA ===");
-    const nome = input("Nome: ");
-    const descricao = input("Descrição: ");
 
-    const novaCategoria = new Categoria(
-      Math.random().toString(36).substr(2, 9),
-      nome,
-      descricao,
-    );
+    const dados: CategoriaInput = {
+      nome: input("Nome: "),
+      descricao: input("Descrição: "),
+    };
 
-    this.categoriaRepo.criar(novaCategoria);
-    console.log("Categoria criada com sucesso!");
+    try {
+      const categoriaCriado = this.categoriaRepo.criar(dados);
+      console.log(`Categoria criada com ID: ${categoriaCriado.id}`);
+    } catch (error) {
+      console.log(`Erro: ${error}`);
+    }
   }
 
   private listarCategorias(): void {
@@ -208,6 +210,25 @@ export class MainMenu {
       } catch (error) {
         console.log(`Erro: ${error}`);
       }
+    }
+  }
+
+  private criarProduto(): void {
+    console.log("\n=== NOVO PRODUTO ===");
+
+    const dados: ProdutoInput = {
+      nome: input("Nome: "),
+      descricao: input("Descrição: "),
+      preco: parseFloat(input("Preço: ")),
+      quantidade: parseInt(input("Quantidade: ")),
+      categoriaId: parseInt(input("ID da categoria: ")),
+    };
+
+    try {
+      const produtoCriado = this.produtoRepo.criar(dados);
+      console.log(`Produto criado com ID: ${produtoCriado.id}`);
+    } catch (error) {
+      console.log(`Erro: ${error}`);
     }
   }
 }
