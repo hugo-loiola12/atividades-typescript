@@ -23,6 +23,15 @@ export class ProdutoRepository {
 
   atualizar(produto: Produto): void {
     const index = this.produtos.findIndex((p) => p.id === produto.id);
-    this.produtos[index] = produto;
+    if (index !== -1) {
+      this.produtos[index] = produto;
+    }
+  }
+
+  deletar(id: string): void {
+    const index = this.produtos.findIndex((p) => p.id === id);
+    if (index !== -1) {
+      this.produtos.splice(index, 1);
+    }
   }
 }
