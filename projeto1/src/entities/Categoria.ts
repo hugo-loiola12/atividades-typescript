@@ -1,6 +1,6 @@
 export class Categoria {
   constructor(
-    public id: string, // ID numérico
+    public id: number, // ID numérico
     public nome: string,
     public descricao: string,
     public dataCriacao: Date = new Date(),

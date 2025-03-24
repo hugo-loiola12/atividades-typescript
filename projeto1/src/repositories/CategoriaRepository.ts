@@ -7,11 +7,7 @@ export class CategoriaRepository {
   criar(dados: CategoriaInput): Categoria {
     const novoId = ++CategoriaRepository.ultimoId;
 
-    const novaCategoria = new Categoria(
-      novoId.toString(),
-      dados.nome,
-      dados.descricao,
-    );
+    const novaCategoria = new Categoria(novoId, dados.nome, dados.descricao);
     this.categorias.push(novaCategoria);
     return novaCategoria;
   }
@@ -20,7 +16,7 @@ export class CategoriaRepository {
     return this.categorias;
   }
 
-  buscarPorId(id: string): Categoria | undefined {
+  buscarPorId(id: number): Categoria | undefined {
     return this.categorias.find((c) => c.id === id);
   }
 
@@ -31,7 +27,7 @@ export class CategoriaRepository {
     }
   }
 
-  deletar(id: string): boolean {
+  deletar(id: number): boolean {
     const index = this.categorias.findIndex((c) => c.id === id);
     if (index !== -1) {
       this.categorias.splice(index, 1);

@@ -12,7 +12,7 @@ export class ProdutoRepository {
     const dataAtual = new Date();
 
     const novoProduto = new Produto(
-      novoId.toString(),
+      novoId,
       dados.nome,
       dados.descricao,
       dados.preco,
@@ -30,7 +30,7 @@ export class ProdutoRepository {
     return this.produtos;
   }
 
-  buscarPorId(id: string): Produto | undefined {
+  buscarPorId(id: number): Produto | undefined {
     return this.produtos.find((p) => p.id === id);
   }
 
@@ -41,10 +41,12 @@ export class ProdutoRepository {
     }
   }
 
-  deletar(id: string): void {
+  deletar(id: number): boolean {
     const index = this.produtos.findIndex((p) => p.id === id);
     if (index !== -1) {
       this.produtos.splice(index, 1);
+      return true;
     }
+    return false;
   }
 }

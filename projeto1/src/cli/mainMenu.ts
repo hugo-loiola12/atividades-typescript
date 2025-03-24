@@ -1,6 +1,6 @@
 import prompt from "prompt-sync";
 import { Categoria, CategoriaInput } from "../entities/Categoria";
-import { ProdutoInput } from "../entities/Produto";
+import { Produto, ProdutoInput } from "../entities/Produto";
 import { CategoriaRepository } from "../repositories/CategoriaRepository";
 import { ProdutoRepository } from "../repositories/ProdutoRepository";
 
@@ -111,12 +111,13 @@ export class MainMenu {
   }
 
   private buscarCategoria(): void {
-    const termo = input("Digite ID ou nome para buscar: ");
+    const termo = parseInt(input("Digite ID ou nome para buscar: "));
     const categoria = this.categoriaRepo
       .listar()
       .find(
         (c) =>
-          c.id === termo || c.nome.toLowerCase().includes(termo.toLowerCase()),
+          c.id === termo ||
+          c.nome.toLowerCase().includes(termo.toString().toLowerCase()),
       );
 
     if (!categoria) {
@@ -131,7 +132,7 @@ export class MainMenu {
   }
 
   private atualizarCategoria(): void {
-    const id = input("Digite o ID da categoria para atualizar: ");
+    const id = parseInt(input("Digite o ID da categoria para atualizar: "));
     const categoria = this.categoriaRepo.buscarPorId(id);
 
     if (!categoria) {
@@ -156,7 +157,7 @@ export class MainMenu {
   }
 
   private removerCategoria(): void {
-    const id = input("Digite o ID da categoria para remover: ");
+    const id = parseInt(input("Digite o ID da categoria para remover: "));
 
     // Verificar produtos associados
     const produtos = this.produtoRepo
@@ -212,7 +213,7 @@ export class MainMenu {
       }
     }
   }
-
+  // Criar Produto
   private criarProduto(): void {
     console.log("\n=== NOVO PRODUTO ===");
 
@@ -230,5 +231,90 @@ export class MainMenu {
     } catch (error) {
       console.log(`Erro: ${error}`);
     }
+  }
+  // Listar Produto
+  private listarProduto(): void {
+    const categorias = this.produtoRepo.listar();
+
+    if (categorias.length === 0) {
+      console.log("Nenhum produto cadastrado");
+      return;
+    }
+
+    console.log("\n=== PRODUTOS CADASTRADOS ===");
+    categorias.forEach((c) => {
+      console.log(`ID: ${c.id}`);
+      console.log(`Nome: ${c.nome}`);
+      console.log(`Descrição: ${c.descricao}`);
+      console.log(`Preço: ${c.preco}`);
+      console.log(`Quantidade: ${c.quantidade}`);
+      console.log("-----------------------------");
+    });
+  }
+  // Buscar Produto
+  private buscarProduto(): void {
+    const termo = parseInt(input("Digite ID ou nome para buscar: "));
+    const produto = this.produtoRepo
+      .listar()
+      .find(
+        (c) =>
+          c.id === termo ||
+          c.nome.toLowerCase().includes(termo.toString().toLowerCase()),
+      );
+
+    if (!produto) {
+      console.log("Produto não encontrado");
+      return;
+    }
+
+    console.log("\n=== PRODUTO ENCONTRADO ===");
+    console.log(`ID: ${produto.id}`);
+    console.log(`Nome: ${produto.nome}`);
+    console.log(`Descrição: ${produto.descricao}`);
+    console.log(`Preço: ${produto.preco}`);
+    console.log(`Quantidade: ${produto.quantidade}`);
+  }
+  // Atualizar Produto
+  private atualizarProduto(): void {
+    const id = parseInt(input("Digite o ID do produto para atualizar: "));
+    const produto = this.produtoRepo.buscarPorId(id);
+
+    if (!produto) {
+      console.log("Produto não encontrado");
+      return;
+    }
+
+    console.log("\n=== ATUALIZAR PRODUTO ===");
+    const novoNome = input(`Novo nome [${produto.nome}]: `) || produto.nome;
+    const novaDesc =
+      input(`Nova descrição [${produto.descricao}]: `) || produto.descricao;
+    const novoPreco =
+      parseFloat(input(`Novo preço [${produto.preco}]: `)) || produto.preco;
+    const novaQuantidade =
+      parseInt(input(`Nova quantidade [${produto.quantidade}]: `)) ||
+      produto.quantidade;
+    const novaCategoriaId =
+      parseInt(input(`Nova categoria [${produto.categoriaId}]: `)) ||
+      produto.categoriaId;
+
+    const atualizado = new Produto(
+      produto.id,
+      novoNome,
+      novaDesc,
+      novoPreco,
+      novaQuantidade,
+      novaCategoriaId,
+      produto.dataCriacao,
+    );
+
+    this.produtoRepo.atualizar(atualizado);
+    console.log("Produto atualizado com sucesso!");
+  }
+  // Remover Produto
+  private removerProduto(): void {
+    const id = parseInt(input("Digite o ID do produto para remover: "));
+
+    const sucesso = this.produtoRepo.deletar(id);
+    console.log(sucesso ? "Produto removido!" : "Produto não encontrado!");
   }
 }
