@@ -1,6 +1,9 @@
-import inquirer from "inquirer";
+import prompt from "prompt-sync";
+import { Categoria } from "../entities/Categoria";
 import { CategoriaRepository } from "../repositories/CategoriaRepository";
 import { ProdutoRepository } from "../repositories/ProdutoRepository";
+
+const input = prompt();
 
 export class MainMenu {
   constructor(
@@ -8,50 +11,203 @@ export class MainMenu {
     private produtoRepo: ProdutoRepository,
   ) {}
 
-  async iniciar(): Promise<void> {
-    const resposta = await inquirer.prompt({
-      type: "list",
-      name: "acao",
-      message: "O que deseja fazer?",
-      choices: ["Gerenciar Categorias", "Gerenciar Produtos", "Sair"],
-    });
+  iniciar(): void {
+    while (true) {
+      console.log("\n=== MENU PRINCIPAL ===");
+      console.log("1. Gerenciar Categorias");
+      console.log("2. Gerenciar Produtos");
+      console.log("0. Sair");
 
-    switch (resposta.acao) {
-      case "Gerenciar Categorias":
-        await this.menuCategorias();
-        break;
-      case "Gerenciar Produtos":
-        await this.menuProdutos();
-        break;
-      case "Sair":
-        process.exit(0);
+      const opcao = input("Escolha uma opção: ");
+
+      switch (opcao) {
+        case "1":
+          this.menuCategorias();
+          break;
+        case "2":
+          this.menuProdutos();
+          break;
+        case "0":
+          console.log("Saindo...");
+          process.exit(0);
+        default:
+          console.log("Opção inválida!");
+      }
+    }
+  }
+  // Categorias
+  private menuCategorias(): void {
+    while (true) {
+      console.log("\n=== GERENCIAR CATEGORIAS ===");
+      console.log("1. Criar categoria");
+      console.log("2. Listar categorias");
+      console.log("3. Buscar categoria");
+      console.log("4. Atualizar categoria");
+      console.log("5. Remover categoria");
+      console.log("0. Voltar");
+
+      const opcao = input("Escolha uma opção: ");
+
+      if (opcao === "0") break;
+
+      try {
+        switch (opcao) {
+          case "1":
+            this.criarCategoria();
+            break;
+          case "2":
+            this.listarCategorias();
+            break;
+          case "3":
+            this.buscarCategoria();
+            break;
+          case "4":
+            this.atualizarCategoria();
+            break;
+          case "5":
+            this.removerCategoria();
+            break;
+          default:
+            console.log("Opção inválida!");
+        }
+      } catch (error) {
+        console.log(`Erro: ${error}`);
+      }
     }
   }
 
-  private async menuCategorias(): Promise<void> {
-    const resposta = await inquirer.prompt({
-      type: "list",
-      name: "acao",
-      message: "Menu Categorias:",
-      choices: ["Criar", "Listar", "Voltar"],
-    });
+  private criarCategoria(): void {
+    console.log("\n=== NOVA CATEGORIA ===");
+    const nome = input("Nome: ");
+    const descricao = input("Descrição: ");
 
-    if (resposta.acao === "Criar") {
-      const dados = await inquirer.prompt([
-        { name: "nome", message: "Nome da categoria:" },
-        { name: "descricao", message: "Descrição:" },
-      ]);
+    const novaCategoria = new Categoria(
+      Math.random().toString(36).substr(2, 9),
+      nome,
+      descricao,
+    );
 
-      const novaCategoria = new Categoria(
-        Math.random().toString(36).substr(2, 9), // ID único
-        dados.nome,
-        dados.descricao,
-      );
+    this.categoriaRepo.criar(novaCategoria);
+    console.log("Categoria criada com sucesso!");
+  }
 
-      this.categoriaRepo.criar(novaCategoria);
-      console.log("Categoria criada com sucesso!");
+  private listarCategorias(): void {
+    const categorias = this.categoriaRepo.listar();
+
+    if (categorias.length === 0) {
+      console.log("Nenhuma categoria cadastrada");
+      return;
     }
 
-    // Implemente listar, buscar, atualizar e remover
+    console.log("\n=== CATEGORIAS CADASTRADAS ===");
+    categorias.forEach((c) => {
+      console.log(`ID: ${c.id}`);
+      console.log(`Nome: ${c.nome}`);
+      console.log(`Descrição: ${c.descricao}`);
+      console.log("-----------------------------");
+    });
+  }
+
+  private buscarCategoria(): void {
+    const termo = input("Digite ID ou nome para buscar: ");
+    const categoria = this.categoriaRepo
+      .listar()
+      .find(
+        (c) =>
+          c.id === termo || c.nome.toLowerCase().includes(termo.toLowerCase()),
+      );
+
+    if (!categoria) {
+      console.log("Categoria não encontrada");
+      return;
+    }
+
+    console.log("\n=== CATEGORIA ENCONTRADA ===");
+    console.log(`ID: ${categoria.id}`);
+    console.log(`Nome: ${categoria.nome}`);
+    console.log(`Descrição: ${categoria.descricao}`);
+  }
+
+  private atualizarCategoria(): void {
+    const id = input("Digite o ID da categoria para atualizar: ");
+    const categoria = this.categoriaRepo.buscarPorId(id);
+
+    if (!categoria) {
+      console.log("Categoria não encontrada");
+      return;
+    }
+
+    console.log("\n=== ATUALIZAR CATEGORIA ===");
+    const novoNome = input(`Novo nome [${categoria.nome}]: `) || categoria.nome;
+    const novaDesc =
+      input(`Nova descrição [${categoria.descricao}]: `) || categoria.descricao;
+
+    const atualizada = new Categoria(
+      categoria.id,
+      novoNome,
+      novaDesc,
+      categoria.dataCriacao,
+    );
+
+    this.categoriaRepo.atualizar(atualizada);
+    console.log("Categoria atualizada com sucesso!");
+  }
+
+  private removerCategoria(): void {
+    const id = input("Digite o ID da categoria para remover: ");
+
+    // Verificar produtos associados
+    const produtos = this.produtoRepo
+      .listar()
+      .filter((p) => p.categoriaId === id);
+    if (produtos.length > 0) {
+      console.log(
+        "Não é possível remover: Categoria possui produtos vinculados",
+      );
+      return;
+    }
+
+    const sucesso = this.categoriaRepo.deletar(id);
+    console.log(sucesso ? "Categoria removida!" : "Categoria não encontrada!");
+  }
+  // Produtos
+  private menuProdutos(): void {
+    while (true) {
+      console.log("\n=== GERENCIAR PRODUTOS ===");
+      console.log("1. Criar produto");
+      console.log("2. Listar produto");
+      console.log("3. Buscar produto");
+      console.log("4. Atualizar produto");
+      console.log("5. Remover produto");
+      console.log("0. Voltar");
+
+      const opcao = input("Escolha uma opção: ");
+
+      if (opcao === "0") break;
+
+      try {
+        switch (opcao) {
+          case "1":
+            this.criarProduto();
+            break;
+          case "2":
+            this.listarProduto();
+            break;
+          case "3":
+            this.buscarProduto();
+            break;
+          case "4":
+            this.atualizarProduto();
+            break;
+          case "5":
+            this.removerProduto();
+            break;
+          default:
+            console.log("Opção inválida!");
+        }
+      } catch (error) {
+        console.log(`Erro: ${error}`);
+      }
+    }
   }
 }
