@@ -178,7 +178,7 @@ export class MainMenu {
     while (true) {
       console.log("\n=== GERENCIAR PRODUTOS ===");
       console.log("1. Criar produto");
-      console.log("2. Listar produto");
+      console.log("2. Listar produtos");
       console.log("3. Buscar produto");
       console.log("4. Atualizar produto");
       console.log("5. Remover produto");
@@ -248,6 +248,7 @@ export class MainMenu {
       console.log(`Descrição: ${c.descricao}`);
       console.log(`Preço: ${c.preco}`);
       console.log(`Quantidade: ${c.quantidade}`);
+      console.log(`Categoria: ${c.categoriaId}`);
       console.log("-----------------------------");
     });
   }
@@ -273,6 +274,7 @@ export class MainMenu {
     console.log(`Descrição: ${produto.descricao}`);
     console.log(`Preço: ${produto.preco}`);
     console.log(`Quantidade: ${produto.quantidade}`);
+    console.log(`Categoria: ${produto.categoriaId}`);
   }
   // Atualizar Produto
   private atualizarProduto(): void {
