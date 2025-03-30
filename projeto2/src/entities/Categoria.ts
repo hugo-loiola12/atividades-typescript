@@ -1,16 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Produto } from "./Produto";
 
 @Entity()
 export class Categoria {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @Column()
-    nome: string;
+  @Column({ type: "varchar", length: 255 })
+  nome!: string;
 
-    @Column()
-    descricao: string;
+  @Column({ type: "varchar", length: 500 })
+  descricao!: string;
 
-    @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-    dataCriacao: Date;
+  // Alteração: usa "datetime" para SQLite
+  @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+  dataCriacao!: Date;
+
+  @OneToMany(() => Produto, (produto) => produto.categoria)
+  produtos!: Produto[];
 }

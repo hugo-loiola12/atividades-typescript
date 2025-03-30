@@ -1,30 +1,29 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Categoria } from "./Categoria";
 
 @Entity()
 export class Produto {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @Column()
-    nome: string;
+  @Column({ type: "varchar", length: 255 })
+  nome!: string;
 
-    @Column()
-    descricao: string;
+  @Column({ type: "varchar", length: 500 })
+  descricao!: string;
 
-    @Column("decimal")
-    preco: number;
+  @Column({ type: "decimal" })
+  preco!: number;
 
-    @Column("int")
-    quantidade: number;
+  @Column({ type: "int" })
+  quantidade!: number;
 
-    @ManyToOne(() => Categoria)
-    @JoinColumn({ name: "categoriaId" })
-    categoria: Categoria;
+  @ManyToOne(() => Categoria, (categoria) => categoria.produtos)
+  categoria!: Categoria;
 
-    @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-    dataCriacao: Date;
+  @CreateDateColumn({ type: "datetime" })
+  dataCriacao!: Date;
 
-    @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
-    dataAtualizacao: Date;
+  @UpdateDateColumn({ type: "datetime" })
+  dataAtualizacao!: Date;
 }
