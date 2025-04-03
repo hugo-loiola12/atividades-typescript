@@ -125,7 +125,7 @@ src/
 
 ---
 
-**Equipe:** Hugo Loiola de Queiroz, Julia Carolline Fernandes Borges, Isabella, João Gabriel Leite Neirelli, Gustavo Brandão
+**Equipe:** Hugo Loiola de Queiroz, Julia Carolline Fernandes Borges, Isabella Cardoso, João Gabriel Leite Neirelli, Gustavo Brandão
 
 **Orientador:** Prof. Diego Dias Rodrigues
 
